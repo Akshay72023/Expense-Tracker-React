@@ -12,7 +12,7 @@ const headerContainerStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: '#9027a557',
+  backgroundColor: '#9027a557',  
   height: '70px',
 };
 

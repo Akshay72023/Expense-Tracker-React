@@ -5,17 +5,14 @@ import { Link, Redirect } from 'react-router-dom';
 const Signup = () => {
     const emailRef = useRef('');
     const passwordRef = useRef('');
-    const conpassRef = useRef('');
-    const [redirectToLogin, setRedirectToLogin] = useState(false);
+    const [redirectToWelcome, setRedirectToWelcome] = useState(false);
 
     const submitHandler = (e) => {
         e.preventDefault();
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
-        const confirmpass = conpassRef.current.value;
 
-        if (password === confirmpass) {
-            fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=',
+            fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=',
                 {
                     method: "POST",
                     body: JSON.stringify({
@@ -40,19 +37,15 @@ const Signup = () => {
                         })
                     }
                 }).then((data) => {
-                    alert('Signup Successful');
-                    setRedirectToLogin(true);
+                    alert('Login Successful');
+                    console.log(data.idToken);
+                    setRedirectToWelcome(true);
                 })
                 .catch((err) => {
                     alert(err.message);
                 })
-        }
-        else {
-            alert('Password does not match');
-        }
         emailRef.current.value = '';
         passwordRef.current.value = '';
-        conpassRef.current.value = '';
     }
 
     const divStyles = {
@@ -73,15 +66,15 @@ const Signup = () => {
         marginTop: '10px',
     };
 
-    if (redirectToLogin) {
-        return <Redirect to="/login" />;
+    if (redirectToWelcome) {
+        return <Redirect to="/welcome" />;
     }
 
     return (
         <div>
             <div style={divStyles}>
                 <Form onSubmit={submitHandler}>
-                <h1 style={{textAlign:'center',marginBotton:'10px'}}>Signup</h1>
+                    <h1 style={{textAlign:'center',marginBotton:'10px'}}>Login</h1>
                     <Form.Group className="mb-3">
                         <Form.Label>Enter Email</Form.Label>
                         <Form.Control type="email" placeholder="Enter email" ref={emailRef} required />
@@ -90,19 +83,15 @@ const Signup = () => {
                         <Form.Label>Enter Password</Form.Label>
                         <Form.Control type="password" placeholder="Password" ref={passwordRef} required />
                     </Form.Group>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Confirm Password</Form.Label>
-                        <Form.Control type="password" placeholder="Confirm Password" ref={conpassRef} required />
-                    </Form.Group>
                     <Button variant="primary" type="submit" style={{ marginBottom: '10px',backgroundColor:'#590080' }}>
-                        Signup
+                        Login
                     </Button>
                 </Form>
             </div>
             <div style={{ textAlign: 'center' }}>
-                <Link to="/login">
+                <Link to="/">
                     <Button variant="outline-primary" style={buttonStyles}>
-                        Have an account? Login
+                        Don't have an account? Signup
                     </Button>
                 </Link>
             </div>
