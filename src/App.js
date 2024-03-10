@@ -4,6 +4,7 @@ import Signup from './Components/Signup';
 import Login from './Components/Login';
 import Welcome from './Components/Welcome';
 import Update from './Components/Update';
+import ForgotPassword from './Components/ForgotPassword';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path='/login' exact><Login /></Route>
           <Route path='/welcome' exact><Welcome /></Route>
           <Route path='/update' exact><Update /></Route>
+          <Route path='/forgotpassword' exact><ForgotPassword /></Route>
         </Switch>
     </div>
   );
