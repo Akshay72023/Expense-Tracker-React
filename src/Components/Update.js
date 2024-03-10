@@ -1,10 +1,28 @@
-import React, { useRef } from 'react';
+import React, { useRef,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Form, Button } from 'react-bootstrap';
 
 const Update = () => {
     const nameRef = useRef('');
     const photoRef = useRef('');
+
+    useEffect(()=>{
+        fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=',
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                    idToken: localStorage.getItem('token'),
+            })
+        }).then(res=>{
+            if(res.ok){
+                return res.json();
+            }
+        }).then(data=>{
+            console.log(data);
+            nameRef.current.value=(data.users[0].displayName || "");
+            photoRef.current.value=(data.users[0].photoUrl || "");
+        })
+    },[]);
 
     const submitHandler = (e) => {
         e.preventDefault();
