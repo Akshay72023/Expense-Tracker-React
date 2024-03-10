@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
+import Header from './Header';
 
 const Signup = () => {
     const emailRef = useRef('');
@@ -79,6 +80,7 @@ const Signup = () => {
 
     return (
         <div>
+            <Header />
             <div style={divStyles}>
                 <Form onSubmit={submitHandler}>
                 <h1 style={{textAlign:'center',marginBotton:'10px'}}>Signup</h1>
