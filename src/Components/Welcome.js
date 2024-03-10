@@ -1,8 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React,{useState} from 'react';
+import { Link,Redirect} from 'react-router-dom';
 import {  Button } from 'react-bootstrap';
 
 const Welcome = () => {
+    const [redirect, setRedirect] = useState(false);
+
     const verifyEmailhandler=(e)=>{
         e.preventDefault();
         fetch('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=',
@@ -24,6 +26,16 @@ const Welcome = () => {
         }).catch(err=>{
             alert(err.message);
         })
+    };
+
+    const logoutHandler=(e)=>{
+            e.preventDefault();
+            localStorage.removeItem('token');
+           setRedirect(true);
+    };
+
+    if(redirect){
+        return <Redirect to="/login"/>
     }
     return (
         <div>
@@ -38,7 +50,14 @@ const Welcome = () => {
                     </Link>
                 </p>
             </div>
-            <Button variant="info" style={{marginLeft:'20px', marginTop:'30px'}} onClick={verifyEmailhandler}>Verify Email</Button>
+            <div style={{ display: 'flex', justifyContent:'space-between'}}>
+                <Button variant="info" style={{ marginRight: '20px', marginTop: '20px' }} onClick={verifyEmailhandler}>
+                    Verify Email
+                </Button>
+                <Button variant="info" style={{ marginTop: '10px',marginRight:'5px' }} onClick={logoutHandler} >
+                    Logout
+                </Button>
+        </div>
         </div>
     )
 };
