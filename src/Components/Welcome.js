@@ -1,7 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {  Button } from 'react-bootstrap';
 
 const Welcome = () => {
+    const verifyEmailhandler=(e)=>{
+        e.preventDefault();
+        fetch('https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=',
+        {
+            method:'POST',
+            body:JSON.stringify({
+                requestType:'VERIFY_EMAIL',
+                idToken:localStorage.getItem('token')
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(res=>{
+            if(res.ok){
+                return res.json();
+            }
+        }).then(data=>{
+            console.log(data);
+        }).catch(err=>{
+            alert(err.message);
+        })
+    }
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid black', padding: '10px' }}>
@@ -15,6 +38,7 @@ const Welcome = () => {
                     </Link>
                 </p>
             </div>
+            <Button variant="info" style={{marginLeft:'20px', marginTop:'30px'}} onClick={verifyEmailhandler}>Verify Email</Button>
         </div>
     )
 };
