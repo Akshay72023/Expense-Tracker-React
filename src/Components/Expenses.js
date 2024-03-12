@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useEffect } from 'react';
+import React, { useRef, useContext, useEffect,useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import ExpenseContext from '../store/expense-context';
 
@@ -7,7 +7,7 @@ const Expenses = () => {
     const enameRef = useRef('');
     const epriceRef = useRef('');
     const ecategoryRef = useRef('');
-
+    const [expenses,setExpenses]=useState([]);
    
 
     const submitHandler = (e) => {
@@ -21,12 +21,37 @@ const Expenses = () => {
             eprice: eprice,
             ecategory: ecategory
         };
-
-        expenseCtx.addExpense(expense);
+        fetch('https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expenses.json',
+        {
+            method:"POST",
+            body:JSON.stringify(expense),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(res=>{
+            if(res.ok){
+                return res.json();
+            }
+        }).then(data=>{
+            console.log(data);
+        }).catch(err=>{
+            alert(err.message);
+        })
     };
     useEffect(() => {
-        console.log(expenseCtx.expenses);
-    }, [expenseCtx.expenses]); 
+        fetch('https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expenses.json')
+            .then(res => {
+                if (res.ok) {
+                    return res.json();
+                }
+            }).then(data => {
+                const loadedExpenses = [];
+                for (const key in data) {
+                    loadedExpenses.push({ id: key, ...data[key] });
+                }
+                setExpenses(loadedExpenses);
+            });
+    }, []);
 
     return (
         <div>
@@ -55,15 +80,15 @@ const Expenses = () => {
                 </Button>
             </Form>
         </div>
-        <div style={{marginTop:'10px',textAlign:'center'}}>
-            <ul style={{ listStyleType: 'none', padding: 0 }}>
-                {expenseCtx.expenses.map(expense => (
-                    <li key={expense.ename} style={{ textAlign: 'center' }}>
-                        <h4>{expense.ename} - {expense.eprice} - {expense.ecategory}</h4>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                <ul style={{ listStyleType: 'none', padding: 0 }}>
+                    {expenses.map(expense => (
+                        <li key={expense.id} style={{ textAlign: 'center' }}>
+                            <h4>{expense.ename} - {expense.eprice} - {expense.ecategory}</h4>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };
