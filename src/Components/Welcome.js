@@ -1,8 +1,10 @@
-import React,{useState} from 'react';
+import React,{useState,useContext} from 'react';
 import { Link,Redirect} from 'react-router-dom';
 import {  Button } from 'react-bootstrap';
-
+import AuthContext from '../store/auth-context';
+import Expenses from './Expenses';
 const Welcome = () => {
+    const authCtx= useContext(AuthContext);
     const [redirect, setRedirect] = useState(false);
 
     const verifyEmailhandler=(e)=>{
@@ -30,13 +32,15 @@ const Welcome = () => {
 
     const logoutHandler=(e)=>{
             e.preventDefault();
-            localStorage.removeItem('token');
-           setRedirect(true);
+            authCtx.logout();
+            setRedirect(true);
     };
 
     if(redirect){
         return <Redirect to="/login"/>
     }
+
+    
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid black', padding: '10px' }}>
@@ -57,9 +61,12 @@ const Welcome = () => {
                 <Button variant="info" style={{ marginTop: '10px',marginRight:'5px' }} onClick={logoutHandler} >
                     Logout
                 </Button>
-        </div>
+            </div>
+            <Expenses />
         </div>
     )
 };
+
+
 
 export default Welcome;

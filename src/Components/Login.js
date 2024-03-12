@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState,useContext} from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import Header from './Header';
+import AuthContext from '../store/auth-context';
 
 const Signup = () => {
+    const authCtx=useContext(AuthContext);
     const emailRef = useRef('');
     const passwordRef = useRef('');
     const [redirectToWelcome, setRedirectToWelcome] = useState(false);
@@ -38,14 +40,19 @@ const Signup = () => {
                 }
             }).then((data) => {
                 alert('Login Successful');
-                localStorage.setItem("token", data.idToken);
                 setRedirectToWelcome(true);
+                authCtx.login(data.idToken);
+                
             })
             .catch((err) => {
                 alert(err.message);
             })
         emailRef.current.value = '';
         passwordRef.current.value = '';
+    }
+
+    if (redirectToWelcome) {
+        return <Redirect to="/welcome" />;
     }
 
     const divStyles = {
@@ -66,10 +73,6 @@ const Signup = () => {
     const buttonStyles = {
         marginTop: '10px',
     };
-
-    if (redirectToWelcome) {
-        return <Redirect to="/welcome" />;
-    }
 
     return (
         <div>
