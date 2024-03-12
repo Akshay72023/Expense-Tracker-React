@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Signup from './Components/Signup';
 import Login from './Components/Login';
 import Welcome from './Components/Welcome';
@@ -13,23 +13,13 @@ function App() {
 
   return (
     <div>
-      <Switch>
-        <Route path='/' exact>
-          {isLoggedIn ? <Redirect to="/welcome" /> : <Signup />}
-        </Route>
-        <Route path='/login' exact>
-          {!isLoggedIn ? <Login /> : <Redirect to="/welcome" />}
-        </Route>
-        <Route path='/welcome'>
-          {isLoggedIn ? <Welcome /> : <Redirect to='/login' />}
-        </Route>
-        <Route path='/update'>
-          {isLoggedIn ? <Update /> : <Redirect to='/login' />}
-        </Route>
-        <Route path='/forgotpassword' exact>
-          <ForgotPassword />
-        </Route>
-      </Switch>
+      <Routes>
+        <Route path='/' element={isLoggedIn ? <Navigate to="/welcome" /> : <Signup />} />
+        <Route path='/login' element={!isLoggedIn ? <Login /> : <Navigate to="/welcome" />} />
+        <Route path='/welcome' element={isLoggedIn ? <Welcome /> : <Navigate to="/login" />} />
+        <Route path='/update' element={isLoggedIn ? <Update /> : <Navigate to="/login" />} />
+        <Route path='/forgotpassword' element={<ForgotPassword />} />
+      </Routes>
     </div>
   );
 }

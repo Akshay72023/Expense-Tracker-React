@@ -1,111 +1,179 @@
-import React, { useRef, useContext, useEffect,useState } from 'react';
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import { Form, Button } from 'react-bootstrap';
-import ExpenseContext from '../store/expense-context';
 
-const Expenses = () => {
-    const expenseCtx = useContext(ExpenseContext);
-    const enameRef = useRef('');
-    const epriceRef = useRef('');
-    const ecategoryRef = useRef('');
-    const [expenses,setExpenses]=useState([]);
-   
+const ExpensesForm = () => {
+  const [desc, setDesc] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [data, setData] = useState([]);
+  const [editId, setEditId] = useState(undefined);
+  const email = localStorage.getItem('email');
+  const newEmail = email.replace('@',"").replace('.','');
 
-    const submitHandler = (e) => {
-        e.preventDefault();
-        const ename = enameRef.current.value;
-        const eprice = epriceRef.current.value;
-        const ecategory = ecategoryRef.current.value;
-        
-        const expense = {
-            ename: ename,
-            eprice: eprice,
-            ecategory: ecategory
-        };
-        fetch('https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expenses.json',
-        {
-            method:"POST",
-            body:JSON.stringify(expense),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then(res=>{
-            if(res.ok){
-                return res.json();
-            }
-        }).then(data=>{
-            console.log(data);
-        }).catch(err=>{
-            alert(err.message);
-        })
-    };
-    useEffect(() => {
-        fetch('https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expenses.json')
-            .then(res => {
-                if (res.ok) {
-                    return res.json();
-                }
-            }).then(data => {
-                const loadedExpenses = [];
-                for (const key in data) {
-                    loadedExpenses.push({ id: key, ...data[key] });
-                }
-                setExpenses(loadedExpenses);
-            });
-    }, []);
+  useEffect(() => {
+    getData();
+  }, []);
 
-    return (
-        <div>
-        <div style={divStyles}>
-            <Form onSubmit={submitHandler}>
-                <h1 style={{ textAlign: 'center', marginBottom: '10px' }}>Expense Tracker</h1>
-                <Form.Group className="mb-3">
-                    <Form.Label>Expense Name</Form.Label>
-                    <Form.Control type="text" placeholder="Expense Name" ref={enameRef} required />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Expense Price</Form.Label>
-                    <Form.Control type="number" placeholder="Expense Price" ref={epriceRef} required />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Expense Category</Form.Label>
-                    <Form.Select ref={ecategoryRef}>
-                        <option value="">Select Category</option>
-                        <option value="Food">Food</option>
-                        <option value="Fuel">Fuel</option>
-                        <option value="Movies">Movies</option>
-                    </Form.Select>
-                </Form.Group>
-                <Button variant="primary" type="submit" style={{ marginBottom: '10px', backgroundColor: '#590080' }}>
-                    Add Expense
-                </Button>
-            </Form>
-        </div>
-        <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                <ul style={{ listStyleType: 'none', padding: 0 }}>
-                    {expenses.map(expense => (
-                        <li key={expense.id} style={{ textAlign: 'center' }}>
-                            <h4>{expense.ename} - {expense.eprice} - {expense.ecategory}</h4>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    );
-};
+  const getData = async () => {
+    try {
+      const res = await axios.get(
+        `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}.json`
+      );
+      console.log(res.data);
+      setData(res.data || []);
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
-const divStyles = {
-    width: "600px",
+  const descHandler = (e) => {
+    setDesc(e.target.value);
+  };
+
+  const amountHandler = (e) => {
+    setAmount(e.target.value);
+  };
+
+  const categoryHandler = (e) => {
+    setCategory(e.target.value);
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const obj = { desc, amount, category };
+    if (editId === undefined) {
+      try {
+        const res = await axios.post(
+          `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}.json`,
+          obj
+        );
+        console.log(res);
+        getData();
+      } catch (error) {
+        console.log("error", error);
+      }
+      setDesc("");
+      setAmount("");
+      setCategory("");
+    } else {
+      try {
+        const res = await axios.put(
+          `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}/${editId}.json`,
+          obj
+        );
+        console.log(res);
+        getData();
+      } catch (error) {
+        console.log("error", error);
+      }
+      setDesc("");
+      setAmount("");
+      setCategory("");
+    }
+  };
+
+  const deleteExpenseHandler = async (id) => {
+    try {
+      const res = await axios.delete(
+        `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}/${id}.json`
+      );
+      console.log(res.data);
+      getData();
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const editExpenseHandler = (d, a, c, id) => {
+    setDesc(d);
+    setAmount(a);
+    setCategory(c);
+    setEditId(id);
+  };
+
+  const divStyles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '400px',
     margin: '0 auto',
-    marginTop: '-45px',
+    marginTop: '-40px',
     backgroundColor: '#8e5da98f',
     border: '1px solid #ccc',
     padding: '20px',
     borderRadius: '5px',
+    width:'300px'
+  };
+
+  return (
+    <div>
+    <div style={divStyles}>
+      <Form>
+        <h1>Day-to-day Expenses</h1>
+        <Form.Group className="mb-3" controlId="desc">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            value={desc}
+            onChange={descHandler}
+            type="text"
+            placeholder="Enter Description of Expense"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="amount">
+          <Form.Label>Amount</Form.Label>
+          <Form.Control
+            value={amount}
+            onChange={amountHandler}
+            type="number"
+            placeholder="Enter Amount of Expense"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="category">
+          <Form.Label>Category</Form.Label>
+          <Form.Select
+            value={category}
+            onChange={categoryHandler}
+          >
+            <option>Select</option>
+            <option>Food</option>
+            <option>Petrol</option>
+            <option>Clothes</option>
+            <option>other..</option>
+          </Form.Select>
+        </Form.Group>
+
+        <Button onClick={submitHandler}>Submit</Button>
+      </Form>
+      </div>
+      <div style={{textAlign:'center',marginTop:'10px'}}>
+        {Object.keys(data).map((key) => {
+          const item = data[key];
+          return (
+            <div style={{display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            border: '1px solid #ccc',
+            borderRadius: '5px',
+            padding: '10px',
+            marginBottom: '10px',}} key={key}>
+              <p> Description : {item.desc}</p>
+              <p> Amount : {item.amount}</p>
+              <p> Category: {item.category}</p>
+              <button
+                onClick={() => editExpenseHandler(item.desc, item.amount, item.category, key)}
+              >
+                Edit
+              </button>
+              <button onClick={() => deleteExpenseHandler(key)}>Delete</button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
-export default Expenses;
+export default ExpensesForm;

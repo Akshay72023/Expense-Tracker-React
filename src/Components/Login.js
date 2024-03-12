@@ -1,14 +1,14 @@
-import React, { useRef, useState,useContext} from 'react';
+import React, { useRef,useContext } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import AuthContext from '../store/auth-context';
 
 const Signup = () => {
-    const authCtx=useContext(AuthContext);
+    const authCtx = useContext(AuthContext);
     const emailRef = useRef('');
     const passwordRef = useRef('');
-    const [redirectToWelcome, setRedirectToWelcome] = useState(false);
+    const navigate = useNavigate();
 
     const submitHandler = (e) => {
         e.preventDefault();
@@ -40,19 +40,14 @@ const Signup = () => {
                 }
             }).then((data) => {
                 alert('Login Successful');
-                setRedirectToWelcome(true);
-                authCtx.login(data.idToken);
-                
+                authCtx.login(data.idToken,email);
+                navigate('/welcome');
             })
             .catch((err) => {
                 alert(err.message);
             })
         emailRef.current.value = '';
         passwordRef.current.value = '';
-    }
-
-    if (redirectToWelcome) {
-        return <Redirect to="/welcome" />;
     }
 
     const divStyles = {
