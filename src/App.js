@@ -5,12 +5,13 @@ import Login from './Components/Login';
 import Welcome from './Components/Welcome';
 import Update from './Components/Update';
 import ForgotPassword from './Components/ForgotPassword';
-import AuthContext from './store/auth-context';
+import {  useSelector } from 'react-redux';
+// import AuthContext from './store/auth-context';
 
 function App() {
-  const authCtx = useContext(AuthContext);
-  const isLoggedIn = authCtx.isLoggedIn;
-
+  //const authCtx = useContext(AuthContext);
+  // const isLoggedIn = authCtx.isLoggedIn;
+  const isLoggedIn = useSelector( state => state.auth.isLoggedIn);
   return (
     <div>
       <Routes>

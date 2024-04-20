@@ -1,11 +1,11 @@
-import React, { useRef,useContext } from 'react';
+import React, { useRef } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from './Header';
-import AuthContext from '../store/auth-context';
+import { useDispatch } from 'react-redux';
+import { authActions } from '../store/auth';
 
 const Signup = () => {
-    const authCtx = useContext(AuthContext);
+    const dispatch = useDispatch();
     const emailRef = useRef('');
     const passwordRef = useRef('');
     const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Signup = () => {
                 }
             }).then((data) => {
                 alert('Login Successful');
-                authCtx.login(data.idToken,email);
+                dispatch(authActions.login({ token: data.idToken, email }));
                 navigate('/welcome');
             })
             .catch((err) => {
@@ -50,29 +50,9 @@ const Signup = () => {
         passwordRef.current.value = '';
     }
 
-    const divStyles = {
-        width: "400px",
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '400px',
-        margin: '0 auto',
-        marginTop: '50px',
-        backgroundColor: '#8e5da98f',
-        border: '1px solid #ccc',
-        padding: '20px',
-        borderRadius: '5px',
-    };
-
-    const buttonStyles = {
-        marginTop: '10px',
-    };
-
     return (
         <div>
-            <Header />
-            <div style={divStyles}>
+            <div style={{ width: "400px", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '400px', margin: '0 auto', marginTop: '50px', backgroundColor: '#8e5da98f', border: '1px solid #ccc', padding: '20px', borderRadius: '5px' }}>
                 <Form onSubmit={submitHandler}>
                     <h1 style={{ textAlign: 'center', marginBottom: '10px' }}>Login</h1>
                     <Form.Group className="mb-3">
@@ -91,7 +71,7 @@ const Signup = () => {
             </div>
             <div style={{ textAlign: 'center' }}>
                 <Link to="/">
-                    <Button variant="outline-primary" style={buttonStyles}>
+                    <Button variant="outline-primary" style={{ marginTop: '10px' }}>
                         Don't have an account? Signup
                     </Button>
                 </Link>

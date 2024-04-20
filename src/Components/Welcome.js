@@ -1,12 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom'; 
 import { Button } from 'react-bootstrap';
-import AuthContext from '../store/auth-context';
+//import AuthContext from '../store/auth-context';
 import Expenses from './Expenses';
+import { useDispatch } from 'react-redux';
+import { authActions } from '../store/auth';
 
 const Welcome = () => {
-    const authCtx = useContext(AuthContext);
+    // const authCtx = useContext(AuthContext);
     const [redirect, setRedirect] = useState(false);
+    const dispatch = useDispatch();
 
     const verifyEmailhandler = (e) => {
         e.preventDefault();
@@ -33,7 +36,8 @@ const Welcome = () => {
 
     const logoutHandler = (e) => {
         e.preventDefault();
-        authCtx.logout();
+        //authCtx.logout();
+        dispatch(authActions.logout());
         setRedirect(true);
     };
 

@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Form, Button } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { expenseActions } from '../store/expenses';
 
 const ExpensesForm = () => {
+  const dispatch = useDispatch();
+  const total = useSelector(state => state.expense.total);
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -13,12 +17,12 @@ const ExpensesForm = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [total]); 
 
   const getData = async () => {
     try {
       const res = await axios.get(
-        `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}.json`
+        `https://expense-tracker-7a352-default-rtdb.firebaseio.com/expense/${newEmail}.json`
       );
       console.log(res.data);
       setData(res.data || []);
@@ -45,10 +49,11 @@ const ExpensesForm = () => {
     if (editId === undefined) {
       try {
         const res = await axios.post(
-          `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}.json`,
+          `https://expense-tracker-7a352-default-rtdb.firebaseio.com/expense/${newEmail}.json`,
           obj
         );
         console.log(res);
+        dispatch(expenseActions.totalExpense(Number(amount)));
         getData();
       } catch (error) {
         console.log("error", error);
@@ -59,7 +64,7 @@ const ExpensesForm = () => {
     } else {
       try {
         const res = await axios.put(
-          `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}/${editId}.json`,
+          `https://expense-tracker-7a352-default-rtdb.firebaseio.com/expense/${newEmail}/${editId}.json`,
           obj
         );
         console.log(res);
@@ -73,12 +78,13 @@ const ExpensesForm = () => {
     }
   };
 
-  const deleteExpenseHandler = async (id) => {
+  const deleteExpenseHandler = async (amount,id) => {
     try {
       const res = await axios.delete(
-        `https://expensetracker-3c3a6-default-rtdb.firebaseio.com/expense/${newEmail}/${id}.json`
+        `https://expense-tracker-7a352-default-rtdb.firebaseio.com/expense/${newEmail}/${id}.json`
       );
       console.log(res.data);
+      dispatch(expenseActions.deleteExpense(amount))
       getData();
     } catch (error) {
       console.log("Error", error);
@@ -108,45 +114,45 @@ const ExpensesForm = () => {
 
   return (
     <div>
-    <div style={divStyles}>
-      <Form>
-        <h1>Day-to-day Expenses</h1>
-        <Form.Group className="mb-3" controlId="desc">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            value={desc}
-            onChange={descHandler}
-            type="text"
-            placeholder="Enter Description of Expense"
-          />
-        </Form.Group>
+      <div style={divStyles}>
+        <Form>
+          <h1>Day-to-day Expenses</h1>
+          <Form.Group className="mb-3" controlId="desc">
+            <Form.Label>Description</Form.Label>
+            <Form.Control
+              value={desc}
+              onChange={descHandler}
+              type="text"
+              placeholder="Enter Description of Expense"
+            />
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="amount">
-          <Form.Label>Amount</Form.Label>
-          <Form.Control
-            value={amount}
-            onChange={amountHandler}
-            type="number"
-            placeholder="Enter Amount of Expense"
-          />
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="amount">
+            <Form.Label>Amount</Form.Label>
+            <Form.Control
+              value={amount}
+              onChange={amountHandler}
+              type="number"
+              placeholder="Enter Amount of Expense"
+            />
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="category">
-          <Form.Label>Category</Form.Label>
-          <Form.Select
-            value={category}
-            onChange={categoryHandler}
-          >
-            <option>Select</option>
-            <option>Food</option>
-            <option>Petrol</option>
-            <option>Clothes</option>
-            <option>other..</option>
-          </Form.Select>
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="category">
+            <Form.Label>Category</Form.Label>
+            <Form.Select
+              value={category}
+              onChange={categoryHandler}
+            >
+              <option>Select</option>
+              <option>Food</option>
+              <option>Petrol</option>
+              <option>Clothes</option>
+              <option>other..</option>
+            </Form.Select>
+          </Form.Group>
 
-        <Button onClick={submitHandler}>Submit</Button>
-      </Form>
+          <Button onClick={submitHandler}>Submit</Button>
+        </Form>
       </div>
       <div style={{textAlign:'center',marginTop:'10px'}}>
         {Object.keys(data).map((key) => {
@@ -159,19 +165,27 @@ const ExpensesForm = () => {
             borderRadius: '5px',
             padding: '10px',
             marginBottom: '10px',}} key={key}>
-              <p> Description : {item.desc}</p>
-              <p> Amount : {item.amount}</p>
-              <p> Category: {item.category}</p>
-              <button
+              <p style={{ marginLeft: '5px' }}> Description: {item.desc}</p>
+              <p style={{ marginLeft: '5px' }}> Amount: {item.amount}</p>
+              <p style={{ marginLeft: '5px' }}> Category: {item.category}</p>
+              <button style={{ marginLeft: '5px' }}
                 onClick={() => editExpenseHandler(item.desc, item.amount, item.category, key)}
               >
                 Edit
-              </button>
-              <button onClick={() => deleteExpenseHandler(key)}>Delete</button>
+              </button >
+              <button style={{ marginLeft: '5px' }}  onClick={() => deleteExpenseHandler(item.amount,key)}>Delete</button>
             </div>
           );
         })}
       </div>
+      {total >= 10000 && (
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          <Button style={{ backgroundColor: '#b67acb', color: 'white', fontWeight: 'bold', border: 'none' }}>
+            Activate Premium
+          </Button>
+        </div>
+      )}
+      <p style={{display:'inline-block',marginTop:'20px',marginLeft:'550px',border:'2px solid black', backgroundColor:'#b67acb', color: 'white', fontWeight: 'bold',padding:'5px'}}>Total Expense: {total}</p>
     </div>
   );
 };

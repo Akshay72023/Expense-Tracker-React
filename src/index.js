@@ -4,15 +4,14 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { AuthContextProvider } from './store/auth-context';
-import { ExpenseContextProvider } from './store/expense-context';
+//import { ExpenseContextProvider } from './store/expense-context';
+import { Provider } from 'react-redux';
+import store from './store/index';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <BrowserRouter>
-        <AuthContextProvider>
-            <ExpenseContextProvider>
+                <Provider store={store}>
                 <App />
-            </ExpenseContextProvider>
-        </AuthContextProvider>
+                </Provider>
     </BrowserRouter>
 );
