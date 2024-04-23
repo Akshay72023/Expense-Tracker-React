@@ -37,6 +37,7 @@ const Welcome = () => {
     const logoutHandler = (e) => {
         e.preventDefault();
         //authCtx.logout();
+        localStorage.removeItem('total');
         dispatch(authActions.logout());
         setRedirect(true);
     };

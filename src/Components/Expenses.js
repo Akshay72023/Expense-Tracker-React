@@ -6,18 +6,27 @@ import { expenseActions } from '../store/expenses';
 
 const ExpensesForm = () => {
   const dispatch = useDispatch();
-  const total = useSelector(state => state.expense.total);
+  const [total, setTotal] = useState(() => {
+    const storedTotal = localStorage.getItem('total');
+    return storedTotal ? parseInt(storedTotal) : 0;
+  });
   const [desc, setDesc] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [data, setData] = useState([]);
   const [editId, setEditId] = useState(undefined);
+  const [isPremium, setIsPremium] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // Add state for theme
   const email = localStorage.getItem('email');
   const newEmail = email.replace('@',"").replace('.','');
 
   useEffect(() => {
     getData();
-  }, [total]); 
+  }, []); 
+
+  useEffect(() => {
+    localStorage.setItem('total', total);
+  }, [total]);
 
   const getData = async () => {
     try {
@@ -53,7 +62,7 @@ const ExpensesForm = () => {
           obj
         );
         console.log(res);
-        dispatch(expenseActions.totalExpense(Number(amount)));
+        setTotal(prevTotal => prevTotal + Number(amount)); 
         getData();
       } catch (error) {
         console.log("error", error);
@@ -84,7 +93,7 @@ const ExpensesForm = () => {
         `https://expense-tracker-7a352-default-rtdb.firebaseio.com/expense/${newEmail}/${id}.json`
       );
       console.log(res.data);
-      dispatch(expenseActions.deleteExpense(amount))
+      setTotal(prevTotal => prevTotal - amount);
       getData();
     } catch (error) {
       console.log("Error", error);
@@ -98,6 +107,24 @@ const ExpensesForm = () => {
     setEditId(id);
   };
 
+  const premiumActivate=(e)=>{
+    e.preventDefault();
+    setIsPremium(!isPremium);
+  };
+
+  const downloadFile = () => {
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(data)], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = "expenses.txt";
+    document.body.appendChild(element); 
+    element.click();
+  };
+
+  const toggleTheme = () => {
+    setIsDarkMode(prevMode => !prevMode); 
+  };
+
   const divStyles = {
     display: 'flex',
     flexDirection: 'column',
@@ -105,7 +132,8 @@ const ExpensesForm = () => {
     alignItems: 'center',
     margin: '0 auto',
     marginTop: '-40px',
-    backgroundColor: '#8e5da98f',
+    backgroundColor: isDarkMode ? '#222' : '#8e5da98f', 
+    color: isDarkMode ? 'white' : 'black', 
     border: '1px solid #ccc',
     padding: '20px',
     borderRadius: '5px',
@@ -113,7 +141,7 @@ const ExpensesForm = () => {
   };
 
   return (
-    <div>
+    <div style={{backgroundColor:isDarkMode ? '#222' : 'white', color:isDarkMode ? 'white' : 'black'}}>
       <div style={divStyles}>
         <Form>
           <h1>Day-to-day Expenses</h1>
@@ -180,12 +208,25 @@ const ExpensesForm = () => {
       </div>
       {total >= 10000 && (
         <div style={{ textAlign: 'center', marginTop: '10px' }}>
-          <Button style={{ backgroundColor: '#b67acb', color: 'white', fontWeight: 'bold', border: 'none' }}>
+          <Button onClick={premiumActivate} style={{ backgroundColor: '#b67acb', color: 'white', fontWeight: 'bold', border: 'none' }}>
             Activate Premium
           </Button>
         </div>
       )}
-      <p style={{display:'inline-block',marginTop:'20px',marginLeft:'550px',border:'2px solid black', backgroundColor:'#b67acb', color: 'white', fontWeight: 'bold',padding:'5px'}}>Total Expense: {total}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+        {total >= 10000 && isPremium && 
+          <Button style={{ backgroundColor: '#b67acb', color: 'white', fontWeight: 'bold', border: 'none', marginRight: '10px' }} onClick={downloadFile}>
+            Download Expenses
+          </Button>
+        }
+        {total >= 10000 && isPremium && 
+          <Button style={{ backgroundColor: '#b67acb', color: 'white', fontWeight: 'bold', border: 'none' }} onClick={toggleTheme}>
+            Toggle theme
+          </Button>
+        }
+      </div>
+      {total>0 && <p style={{display:'inline-block',marginTop:'20px',marginLeft:'550px',border:'2px solid black', backgroundColor:'#b67acb', color: 'white', fontWeight: 'bold',padding:'5px'}} >Total Expense: {total}</p>
+}
     </div>
   );
 };

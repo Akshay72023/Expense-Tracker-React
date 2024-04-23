@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialAuthState = {
   token: localStorage.getItem('token') || '',
   isLoggedIn: !!localStorage.getItem('token'),
-  email: localStorage.getItem('email') || ''
+  email: localStorage.getItem('email') || '',
 };
 
 const authSlice = createSlice({
@@ -24,6 +24,7 @@ const authSlice = createSlice({
       state.token = '';
       state.isLoggedIn = false;
       state.email = '';
+
     }
   }
 });
